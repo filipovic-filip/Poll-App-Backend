@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 
 	"filip.filipovic/polling-app/config"
 	"filip.filipovic/polling-app/logging"
@@ -26,7 +27,13 @@ func SetupDb() {
 // ConnectToDb() Opens a connection to the database and saves it inside the global AppConfig
 // so that it can be used from anywhere to communicate with the database
 func connectToDb() {
-	client, err := ent.Open("postgres", "host=127.0.0.1 port=5432 user=postgres dbname=postgres password=postgres sslmode=disable")
+	dbIp := "127.0.0.1"
+	envDbIp, ok := os.LookupEnv("DB_IP")
+	if ok {
+		dbIp = envDbIp
+	}
+
+	client, err := ent.Open("postgres", fmt.Sprintf("host=%s port=5432 user=postgres dbname=postgres password=postgres sslmode=disable", dbIp))
 	if err != nil {
 		logging.FatalMsg("Couldn't connect to the database", err)
 	}
